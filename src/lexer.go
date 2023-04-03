@@ -28,21 +28,21 @@ func (l *Lexer) Advance() Token {
 
   switch l.ch {
   case '=':
-    token = newToken(ASSIGN, l.ch)
+    token = NewToken(ASSIGN, l.ch)
   case ';':
-    token = newToken(SEMICOLON, l.ch)
+    token = NewToken(SEMICOLON, l.ch)
   case '(':
-    token = newToken(LPAREN, l.ch)
+    token = NewToken(LPAREN, l.ch)
   case ')':
-    token = newToken(RPAREN, l.ch)
+    token = NewToken(RPAREN, l.ch)
   case ',':
-    token = newToken(COMMA, l.ch)
+    token = NewToken(COMMA, l.ch)
   case '+':
-    token = newToken(PLUS, l.ch)
+    token = NewToken(PLUS, l.ch)
   case '{':
-    token = newToken(LBRACE, l.ch)
+    token = NewToken(LBRACE, l.ch)
   case '}':
-    token = newToken(RBRACE, l.ch)
+    token = NewToken(RBRACE, l.ch)
   case 0:
     token.Literal = ""
     token.Kind = EOF
@@ -52,5 +52,3 @@ func (l *Lexer) Advance() Token {
 
   return token
 }
-
-func newToken(tokenKind TokenKind, ch byte) Token { return Token{Kind: tokenKind, Literal: string(ch)} }

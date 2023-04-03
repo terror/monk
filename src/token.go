@@ -23,3 +23,7 @@ type Token struct {
   Kind    TokenKind
   Literal string
 }
+
+func NewToken(kind TokenKind, ch byte) Token {
+  return Token{Kind: kind, Literal: string(ch)}
+}
