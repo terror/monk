@@ -1,8 +1,13 @@
 package main
 
 var keywords = map[string]TokenKind{
-  "fn":  FUNCTION,
-  "let": LET,
+  "else":   ELSE,
+  "false":  FALSE,
+  "fn":     FUNCTION,
+  "if":     IF,
+  "let":    LET,
+  "return": RETURN,
+  "true":   TRUE,
 }
 
 func LookupIdent(ident string) TokenKind {
@@ -15,19 +20,30 @@ func LookupIdent(ident string) TokenKind {
 
 const (
   ASSIGN    = "="
+  ASTERISK  = "*"
+  BANG      = "!"
   COMMA     = ","
+  ELSE      = "ELSE"
   EOF       = "EOF"
+  FALSE     = "FALSE"
   FUNCTION  = "FUNCTION"
+  GT        = ">"
   IDENT     = "IDENT"
+  IF        = "IF"
   ILLEGAL   = "ILLEGAL"
   INT       = "INT"
   LBRACE    = "{"
   LET       = "LET"
   LPAREN    = "("
+  LT        = "<"
+  MINUS     = "-"
   PLUS      = "+"
   RBRACE    = "}"
+  RETURN    = "RETURN"
   RPAREN    = ")"
   SEMICOLON = ";"
+  SLASH     = "/"
+  TRUE      = "TRUE"
 )
 
 type TokenKind string

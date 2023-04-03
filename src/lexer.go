@@ -40,18 +40,30 @@ func (l *Lexer) Advance() Token {
   l.consume(isWhitespace)
 
   switch l.ch {
-  case '=':
-    token = NewToken(ASSIGN, l.ch)
-  case ';':
-    token = NewToken(SEMICOLON, l.ch)
+  case '!':
+    token = NewToken(BANG, l.ch)
   case '(':
     token = NewToken(LPAREN, l.ch)
   case ')':
     token = NewToken(RPAREN, l.ch)
-  case ',':
-    token = NewToken(COMMA, l.ch)
+  case '*':
+    token = NewToken(ASTERISK, l.ch)
   case '+':
     token = NewToken(PLUS, l.ch)
+  case ',':
+    token = NewToken(COMMA, l.ch)
+  case '-':
+    token = NewToken(MINUS, l.ch)
+  case '/':
+    token = NewToken(SLASH, l.ch)
+  case ';':
+    token = NewToken(SEMICOLON, l.ch)
+  case '<':
+    token = NewToken(LT, l.ch)
+  case '=':
+    token = NewToken(ASSIGN, l.ch)
+  case '>':
+    token = NewToken(GT, l.ch)
   case '{':
     token = NewToken(LBRACE, l.ch)
   case '}':
