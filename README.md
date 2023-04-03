@@ -1,5 +1,5 @@
 **monk** is a tree-walk interpreter for a small language — following the text
-'Writing an Interpreter in Go' by Thorsten Ball.
+*Writing an Interpreter in Go* by Thorsten Ball.
 
 ```
 let add = fn(a, b) { return a + b; };
