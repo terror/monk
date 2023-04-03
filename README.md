@@ -1,6 +1,8 @@
 **monk** is a tree-walk interpreter for a small language — following the text
 *Writing an Interpreter in Go* by Thorsten Ball.
 
+What does the language look like?
+
 ```
 let add = fn(a, b) { return a + b; };
 
@@ -15,7 +17,7 @@ let fibonacci = fn(x) {
     if (x == 1) {
       1
     } else {
-     fibonacci(x - 1) + fibonacci(x - 2);
+      fibonacci(x - 1) + fibonacci(x - 2);
     }
   }
 };
