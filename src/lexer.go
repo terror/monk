@@ -34,6 +34,14 @@ func (l *Lexer) consume(pred func(byte) bool) string {
   return l.input[position:l.position]
 }
 
+func (l *Lexer) peek() byte {
+  if l.readPosition >= len(l.input) {
+    return 0
+  } else {
+    return l.input[l.readPosition]
+  }
+}
+
 func (l *Lexer) Advance() Token {
   var token Token
 
@@ -41,7 +49,13 @@ func (l *Lexer) Advance() Token {
 
   switch l.ch {
   case '!':
-    token = NewToken(BANG, l.ch)
+    if l.peek() == '=' {
+      ch := l.ch
+      l.read()
+      token = Token{Kind: NOT_EQ, Literal: string(ch) + string(l.ch)}
+    } else {
+      token = NewToken(BANG, l.ch)
+    }
   case '(':
     token = NewToken(LPAREN, l.ch)
   case ')':
@@ -61,7 +75,13 @@ func (l *Lexer) Advance() Token {
   case '<':
     token = NewToken(LT, l.ch)
   case '=':
-    token = NewToken(ASSIGN, l.ch)
+    if l.peek() == '=' {
+      ch := l.ch
+      l.read()
+      token = Token{Kind: EQ, Literal: string(ch) + string(l.ch)}
+    } else {
+      token = NewToken(ASSIGN, l.ch)
+    }
   case '>':
     token = NewToken(GT, l.ch)
   case '{':

@@ -24,6 +24,9 @@ func TestAdvance(t *testing.T) {
     } else {
       return false;
     }
+
+    10 == 10;
+    10 != 9;
   `
 
   tests := []struct {
@@ -95,6 +98,14 @@ func TestAdvance(t *testing.T) {
     {FALSE, "false"},
     {SEMICOLON, ";"},
     {RBRACE, "}"},
+    {INT, "10"},
+    {EQ, "=="},
+    {INT, "10"},
+    {SEMICOLON, ";"},
+    {INT, "10"},
+    {NOT_EQ, "!="},
+    {INT, "9"},
+    {SEMICOLON, ";"},
     {EOF, ""},
   }
 
