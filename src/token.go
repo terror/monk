@@ -1,20 +1,33 @@
 package main
 
+var keywords = map[string]TokenKind{
+  "fn":  FUNCTION,
+  "let": LET,
+}
+
+func LookupIdent(ident string) TokenKind {
+  if kind, ok := keywords[ident]; ok {
+    return kind
+  }
+
+  return IDENT
+}
+
 const (
-  ILLEGAL   = "ILLEGAL"
-  EOF       = "EOF"
-  IDENT     = "IDENT"
-  INT       = "INT"
   ASSIGN    = "="
-  PLUS      = "+"
   COMMA     = ","
-  SEMICOLON = ";"
-  LPAREN    = "("
-  RPAREN    = ")"
-  LBRACE    = "{"
-  RBRACE    = "}"
+  EOF       = "EOF"
   FUNCTION  = "FUNCTION"
+  IDENT     = "IDENT"
+  ILLEGAL   = "ILLEGAL"
+  INT       = "INT"
+  LBRACE    = "{"
   LET       = "LET"
+  LPAREN    = "("
+  PLUS      = "+"
+  RBRACE    = "}"
+  RPAREN    = ")"
+  SEMICOLON = ";"
 )
 
 type TokenKind string

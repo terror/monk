@@ -5,19 +5,57 @@ import (
 )
 
 func TestAdvance(t *testing.T) {
-  input := `=+(){},;`
+  input := `
+    let five = 5;
+
+    let ten = 10;
+
+    let add = fn(x, y) {
+      x + y;
+    };
+
+    let result = add(five, ten);
+  `
 
   tests := []struct {
     expectedKind    TokenKind
     expectedLiteral string
   }{
+    {LET, "let"},
+    {IDENT, "five"},
     {ASSIGN, "="},
-    {PLUS, "+"},
+    {INT, "5"},
+    {SEMICOLON, ";"},
+    {LET, "let"},
+    {IDENT, "ten"},
+    {ASSIGN, "="},
+    {INT, "10"},
+    {SEMICOLON, ";"},
+    {LET, "let"},
+    {IDENT, "add"},
+    {ASSIGN, "="},
+    {FUNCTION, "fn"},
     {LPAREN, "("},
+    {IDENT, "x"},
+    {COMMA, ","},
+    {IDENT, "y"},
     {RPAREN, ")"},
     {LBRACE, "{"},
+    {IDENT, "x"},
+    {PLUS, "+"},
+    {IDENT, "y"},
+    {SEMICOLON, ";"},
     {RBRACE, "}"},
+    {SEMICOLON, ";"},
+    {LET, "let"},
+    {IDENT, "result"},
+    {ASSIGN, "="},
+    {IDENT, "add"},
+    {LPAREN, "("},
+    {IDENT, "five"},
     {COMMA, ","},
+    {IDENT, "ten"},
+    {RPAREN, ")"},
     {SEMICOLON, ";"},
     {EOF, ""},
   }

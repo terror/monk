@@ -19,12 +19,25 @@ func (l *Lexer) read() {
   } else {
     l.ch = l.input[l.readPosition]
   }
+
   l.position = l.readPosition
   l.readPosition += 1
 }
 
+func (l *Lexer) consume(pred func(byte) bool) string {
+  position := l.position
+
+  for pred(l.ch) {
+    l.read()
+  }
+
+  return l.input[position:l.position]
+}
+
 func (l *Lexer) Advance() Token {
   var token Token
+
+  l.consume(isWhitespace)
 
   switch l.ch {
   case '=':
@@ -46,6 +59,18 @@ func (l *Lexer) Advance() Token {
   case 0:
     token.Literal = ""
     token.Kind = EOF
+  default:
+    if isLetter(l.ch) {
+      token.Literal = l.consume(isLetter)
+      token.Kind = LookupIdent(token.Literal)
+      return token
+    } else if isDigit(l.ch) {
+      token.Kind = INT
+      token.Literal = l.consume(isDigit)
+      return token
+    } else {
+      token = NewToken(ILLEGAL, l.ch)
+    }
   }
 
   l.read()
