@@ -4,15 +4,35 @@ import (
   "fmt"
 )
 
+type (
+  prefixParseFn func() Expression
+  infixParseFn  func(Expression) Expression
+)
+
+const (
+  _ int = iota
+  LOWEST
+  EQUALS  // == LESSGREATER // > or <
+  SUM     //+
+  PRODUCT //*
+  PREFIX  //-Xor!X
+  CALL    // myFunction(X)
+)
+
 type Parser struct {
-  curr   Token
-  errors []string
-  lexer  *Lexer
-  peek   Token
+  curr           Token
+  errors         []string
+  lexer          *Lexer
+  peek           Token
+  prefixParseFns map[TokenKind]prefixParseFn
+  infixParseFns  map[TokenKind]infixParseFn
 }
 
 func NewParser(lexer *Lexer) *Parser {
   p := &Parser{lexer: lexer, errors: []string{}}
+
+  p.prefixParseFns = make(map[TokenKind]prefixParseFn)
+  p.registerPrefix(IDENT, p.parseIdentifier)
 
   p.advance()
   p.advance()
@@ -40,6 +60,14 @@ func (p *Parser) Parse() *Program {
   }
 
   return program
+}
+
+func (p *Parser) registerPrefix(kind TokenKind, fn prefixParseFn) {
+  p.prefixParseFns[kind] = fn
+}
+
+func (p *Parser) registerInfix(kind TokenKind, fn infixParseFn) {
+  p.infixParseFns[kind] = fn
 }
 
 func (p *Parser) advance() {
@@ -77,7 +105,7 @@ func (p *Parser) parseStatement() Statement {
   case RETURN:
     return p.parseReturnStatement()
   default:
-    return nil
+    return p.parseExpressionStatement()
   }
 }
 
@@ -107,4 +135,30 @@ func (p *Parser) parseReturnStatement() *ReturnStatement {
   p.advanceUntil(SEMICOLON)
 
   return statement
+}
+
+func (p *Parser) parseExpression(precedence int) Expression {
+  prefix := p.prefixParseFns[p.curr.Kind]
+
+  if prefix == nil {
+    return nil
+  }
+
+  return prefix()
+}
+
+func (p *Parser) parseExpressionStatement() *ExpressionStatement {
+  statement := &ExpressionStatement{Token: p.curr}
+
+  statement.Expression = p.parseExpression(LOWEST)
+
+  if p.peek.Kind == SEMICOLON {
+    p.advance()
+  }
+
+  return statement
+}
+
+func (p *Parser) parseIdentifier() Expression {
+  return &Identifier{Token: p.curr, Value: p.curr.Literal}
 }

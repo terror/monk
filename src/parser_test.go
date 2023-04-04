@@ -20,6 +20,13 @@ func validate(t *testing.T, p *Parser) {
   t.FailNow()
 }
 
+func setup(t *testing.T, input string) Program {
+  parser := NewParser(NewLexer(input))
+  program := parser.Parse()
+  validate(t, parser)
+  return *program
+}
+
 func TestLetStatements(t *testing.T) {
   input := `
     let x = 5;
@@ -27,11 +34,7 @@ func TestLetStatements(t *testing.T) {
     let foobar = 9000;
   `
 
-  parser := NewParser(NewLexer(input))
-
-  program := parser.Parse()
-
-  validate(t, parser)
+  program := setup(t, input)
 
   if len(program.Statements) != 3 {
     t.Fatalf(
@@ -86,11 +89,7 @@ func TestReturnStatement(t *testing.T) {
     return 993322;
   `
 
-  parser := NewParser(NewLexer(input))
-
-  program := parser.Parse()
-
-  validate(t, parser)
+  program := setup(t, input)
 
   if len(program.Statements) != 3 {
     t.Fatalf(
@@ -113,5 +112,52 @@ func TestReturnStatement(t *testing.T) {
         returnStatement.TokenLiteral(),
       )
     }
+  }
+}
+
+func TestIdentifierExpression(t *testing.T) {
+  input := "foobar;"
+
+  program := setup(t, input)
+
+  if len(program.Statements) != 1 {
+    t.Fatalf(
+      "Program doesn't have enough statements, got=%d",
+      len(program.Statements),
+    )
+  }
+
+  statement, ok := program.Statements[0].(*ExpressionStatement)
+
+  if !ok {
+    t.Fatalf(
+      "program.Statements[0] is not an ExpressionStatement, got=%T",
+      program.Statements[0],
+    )
+  }
+
+  ident, ok := statement.Expression.(*Identifier)
+
+  if !ok {
+    t.Fatalf(
+      "Expression is not a *Identifier, got=%T",
+      statement.Expression,
+    )
+  }
+
+  if ident.Value != "foobar" {
+    t.Errorf(
+      "ident.Value not %s, got=%s",
+      "foobar",
+      statement.Expression,
+    )
+  }
+
+  if ident.TokenLiteral() != "foobar" {
+    t.Errorf(
+      "ident.TokenLiteral not %s, got=%s",
+      "foobar",
+      ident.TokenLiteral(),
+    )
   }
 }

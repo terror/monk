@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-  runRepl(os.Stdin, os.Stdout)
+  repl(os.Stdin, os.Stdout)
 }

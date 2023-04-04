@@ -8,7 +8,7 @@ import (
 
 const PROMPT = ">> "
 
-func runRepl(in io.Reader, out io.Writer) {
+func repl(in io.Reader, out io.Writer) {
   scanner := bufio.NewScanner(in)
 
   for {
@@ -22,10 +22,16 @@ func runRepl(in io.Reader, out io.Writer) {
 
     line := scanner.Text()
 
-    l := NewLexer(line)
+    parser := NewParser(NewLexer(line))
 
-    for token := l.Advance(); token.Kind != EOF; token = l.Advance() {
-      fmt.Printf("%+v\n", token)
+    program := parser.Parse()
+
+    if len(parser.Errors()) != 0 {
+      for _, message := range parser.Errors() {
+        fmt.Println(message)
+      }
+    } else {
+      fmt.Println(program.String())
     }
   }
 }
