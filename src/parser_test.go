@@ -11,10 +11,7 @@ func TestLetStatements(t *testing.T) {
     let foobar = 9000;
   `
 
-  lexer := NewLexer(input)
-  parser := NewParser(lexer)
-
-  program := parser.Parse()
+  program := NewParser(NewLexer(input)).Parse()
 
   if program == nil {
     t.Fatalf("Parse() returned nil")
@@ -50,7 +47,7 @@ func TestLetStatements(t *testing.T) {
     }
 
     if !ok {
-      t.Errorf("statement not *ast.LetStatement, got=%T", statement)
+      t.Errorf("statement not *LetStatement, got=%T", statement)
     }
   }
 }

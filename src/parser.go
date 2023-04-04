@@ -1,13 +1,13 @@
 package main
 
 type Parser struct {
-  l    *Lexer
-  curr Token
-  peek Token
+  curr  Token
+  lexer *Lexer
+  peek  Token
 }
 
-func NewParser(l *Lexer) *Parser {
-  p := &Parser{l: l}
+func NewParser(lexer *Lexer) *Parser {
+  p := &Parser{lexer: lexer}
   p.advance()
   p.advance()
   return p
@@ -33,7 +33,7 @@ func (p *Parser) Parse() *Program {
 
 func (p *Parser) advance() {
   p.curr = p.peek
-  p.peek = p.l.Advance()
+  p.peek = p.lexer.Advance()
 }
 
 func (p *Parser) advanceUntil(kind TokenKind) {

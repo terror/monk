@@ -13,39 +13,10 @@ func NewLexer(input string) *Lexer {
   return l
 }
 
-func (l *Lexer) read() {
-  if l.readPosition >= len(l.input) {
-    l.ch = 0
-  } else {
-    l.ch = l.input[l.readPosition]
-  }
-
-  l.position = l.readPosition
-  l.readPosition += 1
-}
-
-func (l *Lexer) consume(pred func(byte) bool) string {
-  position := l.position
-
-  for pred(l.ch) {
-    l.read()
-  }
-
-  return l.input[position:l.position]
-}
-
-func (l *Lexer) peek() byte {
-  if l.readPosition >= len(l.input) {
-    return 0
-  } else {
-    return l.input[l.readPosition]
-  }
-}
-
 func (l *Lexer) Advance() Token {
   var token Token
 
-  l.consume(isWhitespace)
+  l.eat(isWhitespace)
 
   switch l.ch {
   case '!':
@@ -93,12 +64,12 @@ func (l *Lexer) Advance() Token {
     token.Kind = EOF
   default:
     if isLetter(l.ch) {
-      token.Literal = l.consume(isLetter)
+      token.Literal = l.take(isLetter)
       token.Kind = LookupIdent(token.Literal)
       return token
     } else if isDigit(l.ch) {
       token.Kind = INT
-      token.Literal = l.consume(isDigit)
+      token.Literal = l.take(isDigit)
       return token
     } else {
       token = NewToken(ILLEGAL, l.ch)
@@ -108,4 +79,39 @@ func (l *Lexer) Advance() Token {
   l.read()
 
   return token
+}
+
+func (l *Lexer) read() {
+  if l.readPosition >= len(l.input) {
+    l.ch = 0
+  } else {
+    l.ch = l.input[l.readPosition]
+  }
+
+  l.position = l.readPosition
+  l.readPosition += 1
+}
+
+func (l *Lexer) eat(pred func(byte) bool) {
+  for pred(l.ch) {
+    l.read()
+  }
+}
+
+func (l *Lexer) take(pred func(byte) bool) string {
+  position := l.position
+
+  for pred(l.ch) {
+    l.read()
+  }
+
+  return l.input[position:l.position]
+}
+
+func (l *Lexer) peek() byte {
+  if l.readPosition >= len(l.input) {
+    return 0
+  } else {
+    return l.input[l.readPosition]
+  }
 }
