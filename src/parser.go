@@ -1,16 +1,25 @@
 package main
 
+import ("fmt")
+
 type Parser struct {
   curr  Token
+  errors []string
   lexer *Lexer
   peek  Token
 }
 
 func NewParser(lexer *Lexer) *Parser {
-  p := &Parser{lexer: lexer}
+  p := &Parser{lexer: lexer, errors: []string{}}
+
   p.advance()
   p.advance()
+
   return p
+}
+
+func (p *Parser) Errors() []string {
+  return p.errors
 }
 
 func (p *Parser) Parse() *Program {
@@ -42,13 +51,18 @@ func (p *Parser) advanceUntil(kind TokenKind) {
   }
 }
 
-func (p *Parser) expectPeek(t TokenKind) bool {
-  if p.peek.Kind == t {
+func (p *Parser) expectPeek(kind TokenKind) bool {
+  if p.peek.Kind == kind {
     p.advance()
     return true
   } else {
+    p.peekError(kind)
     return false
   }
+}
+
+func (p *Parser) peekError(kind TokenKind) {
+  p.errors = append(p.errors, fmt.Sprintf("Expected next token to be %s but got %s instead", kind, p.peek.Kind))
 }
 
 func (p *Parser) parseStatement() Statement {

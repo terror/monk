@@ -4,6 +4,22 @@ import (
   "testing"
 )
 
+func validate(t *testing.T, p *Parser) {
+  errors := p.Errors()
+
+  if len(errors) == 0 {
+    return
+  }
+
+  t.Errorf("Parser has %d errors", len(errors))
+
+  for _, message := range errors {
+    t.Errorf("Parser error: %q", message)
+  }
+
+  t.FailNow()
+}
+
 func TestLetStatements(t *testing.T) {
   input := `
     let x = 5;
@@ -11,7 +27,11 @@ func TestLetStatements(t *testing.T) {
     let foobar = 9000;
   `
 
-  program := NewParser(NewLexer(input)).Parse()
+  parser := NewParser(NewLexer(input))
+
+  program := parser.Parse()
+
+  validate(t, parser)
 
   if program == nil {
     t.Fatalf("Parse() returned nil")
