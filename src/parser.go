@@ -2,6 +2,7 @@ package main
 
 import (
   "fmt"
+  "strconv"
 )
 
 type (
@@ -12,27 +13,28 @@ type (
 const (
   _ int = iota
   LOWEST
-  EQUALS  // == LESSGREATER // > or <
-  SUM     //+
-  PRODUCT //*
-  PREFIX  //-Xor!X
-  CALL    // myFunction(X)
+  EQUALS
+  SUM
+  PRODUCT
+  PREFIX
+  CALL
 )
 
 type Parser struct {
-  curr           Token
-  errors         []string
-  lexer          *Lexer
-  peek           Token
-  prefixParseFns map[TokenKind]prefixParseFn
-  infixParseFns  map[TokenKind]infixParseFn
+  curr   Token
+  errors []string
+  infix  map[TokenKind]infixParseFn
+  lexer  *Lexer
+  peek   Token
+  prefix map[TokenKind]prefixParseFn
 }
 
 func NewParser(lexer *Lexer) *Parser {
   p := &Parser{lexer: lexer, errors: []string{}}
 
-  p.prefixParseFns = make(map[TokenKind]prefixParseFn)
+  p.prefix = make(map[TokenKind]prefixParseFn)
   p.registerPrefix(IDENT, p.parseIdentifier)
+  p.registerPrefix(INT, p.parseIntegerLiteral)
 
   p.advance()
   p.advance()
@@ -63,11 +65,11 @@ func (p *Parser) Parse() *Program {
 }
 
 func (p *Parser) registerPrefix(kind TokenKind, fn prefixParseFn) {
-  p.prefixParseFns[kind] = fn
+  p.prefix[kind] = fn
 }
 
 func (p *Parser) registerInfix(kind TokenKind, fn infixParseFn) {
-  p.infixParseFns[kind] = fn
+  p.infix[kind] = fn
 }
 
 func (p *Parser) advance() {
@@ -138,7 +140,7 @@ func (p *Parser) parseReturnStatement() *ReturnStatement {
 }
 
 func (p *Parser) parseExpression(precedence int) Expression {
-  prefix := p.prefixParseFns[p.curr.Kind]
+  prefix := p.prefix[p.curr.Kind]
 
   if prefix == nil {
     return nil
@@ -161,4 +163,20 @@ func (p *Parser) parseExpressionStatement() *ExpressionStatement {
 
 func (p *Parser) parseIdentifier() Expression {
   return &Identifier{Token: p.curr, Value: p.curr.Literal}
+}
+
+func (p *Parser) parseIntegerLiteral() Expression {
+  literal := &IntegerLiteral{Token: p.curr}
+
+  value, err := strconv.ParseInt(p.curr.Literal, 0, 64)
+
+  if err != nil {
+    msg := fmt.Sprintf("Could not parse %q as integer", p.curr.Literal)
+    p.errors = append(p.errors, msg)
+    return nil
+  }
+
+  literal.Value = value
+
+  return literal
 }
