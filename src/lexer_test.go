@@ -115,11 +115,20 @@ func TestAdvance(t *testing.T) {
     token := l.Advance()
 
     if token.Kind != tt.expectedKind {
-      t.Fatalf("tests[%d] - Wrong token kind: expected=%q, got=%q", i, tt.expectedKind, token.Kind)
+      t.Fatalf(
+        "tests[%d] - Wrong token kind: expected=%q, got=%q",
+        i,
+        tt.expectedKind, token.Kind,
+      )
     }
 
     if token.Literal != tt.expectedLiteral {
-      t.Fatalf("test[%d] - Wrong literal: expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
+      t.Fatalf(
+        "test[%d] - Wrong literal: expected=%q, got=%q",
+        i,
+        tt.expectedLiteral,
+        token.Literal,
+      )
     }
   }
 }

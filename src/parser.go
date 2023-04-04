@@ -1,12 +1,14 @@
 package main
 
-import ("fmt")
+import (
+  "fmt"
+)
 
 type Parser struct {
-  curr  Token
+  curr   Token
   errors []string
-  lexer *Lexer
-  peek  Token
+  lexer  *Lexer
+  peek   Token
 }
 
 func NewParser(lexer *Lexer) *Parser {
@@ -62,13 +64,18 @@ func (p *Parser) expectPeek(kind TokenKind) bool {
 }
 
 func (p *Parser) peekError(kind TokenKind) {
-  p.errors = append(p.errors, fmt.Sprintf("Expected next token to be %s but got %s instead", kind, p.peek.Kind))
+  p.errors = append(
+    p.errors,
+    fmt.Sprintf("Expected next token to be %s but got %s instead", kind, p.peek.Kind),
+  )
 }
 
 func (p *Parser) parseStatement() Statement {
   switch p.curr.Kind {
   case LET:
     return p.parseLetStatement()
+  case RETURN:
+    return p.parseReturnStatement()
   default:
     return nil
   }
@@ -86,6 +93,16 @@ func (p *Parser) parseLetStatement() *LetStatement {
   if !p.expectPeek(ASSIGN) {
     return nil
   }
+
+  p.advanceUntil(SEMICOLON)
+
+  return statement
+}
+
+func (p *Parser) parseReturnStatement() *ReturnStatement {
+  statement := &ReturnStatement{Token: p.curr}
+
+  p.advance()
 
   p.advanceUntil(SEMICOLON)
 

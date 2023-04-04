@@ -33,12 +33,11 @@ func TestLetStatements(t *testing.T) {
 
   validate(t, parser)
 
-  if program == nil {
-    t.Fatalf("Parse() returned nil")
-  }
-
   if len(program.Statements) != 3 {
-    t.Fatalf("program.Statements does not contain 3 statements, got=%d", len(program.Statements))
+    t.Fatalf(
+      "program.Statements does not contain 3 statements, got=%d",
+      len(program.Statements),
+    )
   }
 
   tests := []struct {
@@ -59,15 +58,60 @@ func TestLetStatements(t *testing.T) {
     letStatement, ok := statement.(*LetStatement)
 
     if letStatement.Name.Value != tt.expectedIdentifier {
-      t.Errorf("letStatement.Name.Value not '%s'. got=%s", tt.expectedIdentifier, letStatement.Name.Value)
+      t.Errorf(
+        "letStatement.Name.Value not '%s'. got=%s",
+        tt.expectedIdentifier,
+        letStatement.Name.Value,
+      )
     }
 
     if letStatement.Name.TokenLiteral() != tt.expectedIdentifier {
-      t.Errorf("statement.Name not %s, got=%s", tt.expectedIdentifier, letStatement.Name)
+      t.Errorf(
+        "statement.Name not %s, got=%s",
+        tt.expectedIdentifier,
+        letStatement.Name,
+      )
     }
 
     if !ok {
       t.Errorf("statement not *LetStatement, got=%T", statement)
+    }
+  }
+}
+
+func TestReturnStatement(t *testing.T) {
+  input := `
+    return 5;
+    return 10;
+    return 993322;
+  `
+
+  parser := NewParser(NewLexer(input))
+
+  program := parser.Parse()
+
+  validate(t, parser)
+
+  if len(program.Statements) != 3 {
+    t.Fatalf(
+      "program.Statements does not contain 3 statements, got=%d",
+      len(program.Statements),
+    )
+  }
+
+  for _, statement := range program.Statements {
+    returnStatement, ok := statement.(*ReturnStatement)
+
+    if !ok {
+      t.Errorf("Statement not ReturnStatement, got=%T", statement)
+      continue
+    }
+
+    if returnStatement.TokenLiteral() != "return" {
+      t.Errorf(
+        "returnStatement.TokenLiteral not 'return', got %q",
+        returnStatement.TokenLiteral(),
+      )
     }
   }
 }

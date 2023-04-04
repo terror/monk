@@ -1,5 +1,5 @@
-**monk** is a tree-walk interpreter for a small language — following the text
-*Writing an Interpreter in Go* by Thorsten Ball.
+**monk** is a tree-walk interpreter for a small language — written by following
+the text *Writing an Interpreter in Go* by Thorsten Ball.
 
 What does the language look like?
 
