@@ -1,6 +1,7 @@
 package main
 
 import (
+  "fmt"
   "testing"
 )
 
@@ -25,6 +26,28 @@ func setup(t *testing.T, input string) Program {
   program := parser.Parse()
   validate(t, parser)
   return *program
+}
+
+func testIntegerLiteral(t *testing.T, il Expression, value int64) bool {
+  integ, ok := il.(*IntegerLiteral)
+
+  if !ok {
+    t.Errorf("il not *IntegerLiteral. got=%T", il)
+    return false
+  }
+
+  if integ.Value != value {
+    t.Errorf("integ.Value not %d. got=%d", value, integ.Value)
+    return false
+  }
+
+  if integ.TokenLiteral() != fmt.Sprintf("%d", value) {
+    t.Errorf("integ.TokenLiteral not %d. got=%s", value,
+      integ.TokenLiteral())
+    return false
+  }
+
+  return true
 }
 
 func TestLetStatements(t *testing.T) {
@@ -206,5 +229,58 @@ func TestIntegerLiteralExpression(t *testing.T) {
       "5",
       literal.TokenLiteral(),
     )
+  }
+}
+
+func TestPrefixExpressions(t *testing.T) {
+  prefixTests := []struct {
+    input        string
+    operator     string
+    integerValue int64
+  }{
+    {"!5;", "!", 5},
+    {"-15;", "-", 15},
+  }
+
+  for _, tt := range prefixTests {
+    program := setup(t, tt.input)
+
+    if len(program.Statements) != 1 {
+      t.Fatalf(
+        "program.Statements does not contain %d statement, got=%d",
+        1,
+        len(program.Statements),
+      )
+    }
+
+    statement, ok := program.Statements[0].(*ExpressionStatement)
+
+    if !ok {
+      t.Fatalf(
+        "program.Statements[0] is not an ExpressionStatement, got=%T",
+        program.Statements[0],
+      )
+    }
+
+    expression, ok := statement.Expression.(*PrefixExpression)
+
+    if !ok {
+      t.Fatalf(
+        "statement is not a PrefixExpression, got=%T",
+        statement.Expression,
+      )
+    }
+
+    if expression.Operator != tt.operator {
+      t.Fatalf(
+        "expression.Operator is not '%s', got=%s",
+        tt.operator,
+        expression.Operator,
+      )
+    }
+
+    if !testIntegerLiteral(t, expression.Right, tt.integerValue) {
+      return
+    }
   }
 }
