@@ -196,7 +196,7 @@ func (p *Parser) parseExpression(precedence int) Expression {
 
   left := prefix()
 
-  if p.peek.Kind != SEMICOLON && precedence < p.peekPrecedence() {
+  for p.peek.Kind != SEMICOLON && precedence < p.peekPrecedence() {
     infix := p.infix[p.peek.Kind]
 
     if infix == nil {
