@@ -14,11 +14,23 @@ const (
   _ int = iota
   LOWEST
   EQUALS
+  LESSGREATER
   SUM
   PRODUCT
   PREFIX
   CALL
 )
+
+var precedences = map[TokenKind]int{
+  EQ:       EQUALS,
+  NOT_EQ:   EQUALS,
+  LT:       LESSGREATER,
+  GT:       LESSGREATER,
+  PLUS:     SUM,
+  MINUS:    SUM,
+  SLASH:    PRODUCT,
+  ASTERISK: PRODUCT,
+}
 
 type Parser struct {
   curr   Token
@@ -37,6 +49,16 @@ func NewParser(lexer *Lexer) *Parser {
   p.registerPrefix(INT, p.parseIntegerLiteral)
   p.registerPrefix(BANG, p.parsePrefixExpression)
   p.registerPrefix(MINUS, p.parsePrefixExpression)
+
+  p.infix = make(map[TokenKind]infixParseFn)
+  p.registerInfix(ASTERISK, p.parseInfixExpression)
+  p.registerInfix(EQ, p.parseInfixExpression)
+  p.registerInfix(GT, p.parseInfixExpression)
+  p.registerInfix(LT, p.parseInfixExpression)
+  p.registerInfix(MINUS, p.parseInfixExpression)
+  p.registerInfix(NOT_EQ, p.parseInfixExpression)
+  p.registerInfix(PLUS, p.parseInfixExpression)
+  p.registerInfix(SLASH, p.parseInfixExpression)
 
   p.advance()
   p.advance()
@@ -93,6 +115,22 @@ func (p *Parser) expectPeek(kind TokenKind) bool {
     p.peekError(kind)
     return false
   }
+}
+
+func (p *Parser) peekPrecedence() int {
+  if p, ok := precedences[p.peek.Kind]; ok {
+    return p
+  }
+
+  return LOWEST
+}
+
+func (p *Parser) currPrecedence() int {
+  if p, ok := precedences[p.curr.Kind]; ok {
+    return p
+  }
+
+  return LOWEST
 }
 
 func (p *Parser) peekError(kind TokenKind) {
@@ -156,7 +194,21 @@ func (p *Parser) parseExpression(precedence int) Expression {
     return nil
   }
 
-  return prefix()
+  left := prefix()
+
+  if p.peek.Kind != SEMICOLON && precedence < p.peekPrecedence() {
+    infix := p.infix[p.peek.Kind]
+
+    if infix == nil {
+      return left
+    }
+
+    p.advance()
+
+    left = infix(left)
+  }
+
+  return left
 }
 
 func (p *Parser) parseExpressionStatement() *ExpressionStatement {
@@ -200,6 +252,22 @@ func (p *Parser) parsePrefixExpression() Expression {
   p.advance()
 
   expression.Right = p.parseExpression(PREFIX)
+
+  return expression
+}
+
+func (p *Parser) parseInfixExpression(left Expression) Expression {
+  expression := &InfixExpression{
+    Token:    p.curr,
+    Operator: p.curr.Literal,
+    Left:     left,
+  }
+
+  precedence := p.currPrecedence()
+
+  p.advance()
+
+  expression.Right = p.parseExpression(precedence)
 
   return expression
 }
