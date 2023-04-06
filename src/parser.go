@@ -136,7 +136,11 @@ func (p *Parser) currPrecedence() int {
 func (p *Parser) peekError(kind TokenKind) {
   p.errors = append(
     p.errors,
-    fmt.Sprintf("Expected next token to be %s but got %s instead", kind, p.peek.Kind),
+    fmt.Sprintf(
+      "Expected next token to be %s but got %s instead",
+      kind,
+      p.peek.Kind,
+    ),
   )
 }
 

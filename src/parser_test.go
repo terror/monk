@@ -28,11 +28,11 @@ func setup(t *testing.T, input string) Program {
   return *program
 }
 
-func testIntegerLiteral(t *testing.T, il Expression, value int64) bool {
-  integ, ok := il.(*IntegerLiteral)
+func testIntegerLiteral(t *testing.T, expression Expression, value int64) bool {
+  integ, ok := expression.(*IntegerLiteral)
 
   if !ok {
-    t.Errorf("il not *IntegerLiteral. got=%T", il)
+    t.Errorf("expression not *IntegerLiteral. got=%T", expression)
     return false
   }
 
@@ -42,12 +42,89 @@ func testIntegerLiteral(t *testing.T, il Expression, value int64) bool {
   }
 
   if integ.TokenLiteral() != fmt.Sprintf("%d", value) {
-    t.Errorf("integ.TokenLiteral not %d. got=%s", value,
-      integ.TokenLiteral())
+    t.Errorf(
+      "integ.TokenLiteral not %d. got=%s",
+      value,
+      integ.TokenLiteral(),
+    )
     return false
   }
 
   return true
+}
+
+func testIdentifier(t *testing.T, expression Expression, value string) bool {
+  identifier, ok := expression.(*Identifier)
+
+  if !ok {
+    t.Errorf("Expression not an *Identifier, got=%T", expression)
+    return false
+  }
+
+  if identifier.Value != value {
+    t.Errorf("identifier.Value not %s, got=%s", value, identifier.Value)
+    return false
+  }
+
+  if identifier.TokenLiteral() != value {
+    t.Errorf(
+      "identifier.TokenLiteral() not %s, got=%s",
+      value,
+      identifier.TokenLiteral(),
+    )
+    return false
+  }
+
+  return true
+}
+
+func testLiteralExpression(
+  t *testing.T,
+  expression Expression,
+  expected interface{},
+) bool {
+  switch v := expected.(type) {
+  case int:
+    return testIntegerLiteral(t, expression, int64(v))
+  case int64:
+    return testIntegerLiteral(t, expression, v)
+  case string:
+    return testIdentifier(t, expression, v)
+  }
+
+  t.Errorf("Type of expression not handled, got=%T", expression)
+
+  return false
+}
+
+func testInfixExpression(
+  t *testing.T,
+  expression Expression,
+  left interface{},
+  operator string,
+  right interface{},
+) bool {
+  op, ok := expression.(*InfixExpression)
+
+  if !ok {
+    t.Errorf(
+      "Expression is not an *InfixExpression, got=%T(%s)",
+      expression,
+      expression,
+    )
+    return false
+  }
+
+  if !testLiteralExpression(t, op.Left, left) {
+    return false
+  }
+
+  if op.Operator != operator {
+    t.Errorf("Expression operator is not %s, got=%q", operator, op.Operator)
+    return false
+  }
+
+  return testLiteralExpression(t, op.Right, right)
 }
 
 func TestLetStatements(t *testing.T) {
@@ -78,7 +155,10 @@ func TestLetStatements(t *testing.T) {
     statement := program.Statements[i]
 
     if statement.TokenLiteral() != "let" {
-      t.Errorf("statement.TokenLiteral not 'let', got=%q", statement.TokenLiteral())
+      t.Errorf(
+        "statement.TokenLiteral not 'let', got=%q",
+        statement.TokenLiteral(),
+      )
     }
 
     letStatement, ok := statement.(*LetStatement)
@@ -326,24 +406,18 @@ func TestInfixExpressions(t *testing.T) {
 
     if !ok {
       t.Fatalf(
-        "expression is not an ast.InfixExpression. got=%T",
+        "expression is not an *InfixExpression. got=%T",
         statement.Expression,
       )
     }
 
-    if !testIntegerLiteral(t, expression.Left, tt.leftValue) {
-      return
-    }
-
-    if expression.Operator != tt.operator {
-      t.Fatalf(
-        "expression.Operator is not '%s'. got=%s",
-        tt.operator,
-        expression.Operator,
-      )
-    }
-
-    if !testIntegerLiteral(t, expression.Right, tt.rightValue) {
+    if !testInfixExpression(
+      t,
+      expression,
+      tt.leftValue,
+      tt.operator,
+      tt.rightValue,
+    ) {
       return
     }
   }
@@ -365,8 +439,14 @@ func TestOperatorPrecdence(t *testing.T) {
     {"3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"},
     {"5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"},
     {"5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"},
-    {"3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"},
-    {"3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"},
+    {
+      "3 + 4 * 5 == 3 * 1 + 4 * 5",
+      "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+    },
+    {
+      "3 + 4 * 5 == 3 * 1 + 4 * 5",
+      "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+    },
   }
 
   for _, tt := range tests {

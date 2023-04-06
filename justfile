@@ -17,10 +17,10 @@ run:
 	go run `fd .go ./src -E *_test.go`
 
 test:
-	go test ./src
+	go test -v ./src
 
 fmt:
-	gofmt -w {{files}}
+	golines -m 80 -w {{files}}
 	just retab
 
 fmt-check:
@@ -37,4 +37,4 @@ retab:
 	./bin/retab
 
 dev-deps:
-	brew install golangci-lint
+	brew install golangci-lint golines
