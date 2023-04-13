@@ -45,13 +45,14 @@ func NewParser(lexer *Lexer) *Parser {
   p := &Parser{lexer: lexer, errors: []string{}}
 
   p.prefix = make(map[TokenKind]prefixParseFn)
-  p.registerPrefix(IDENT, p.parseIdentifier)
-  p.registerPrefix(INT, p.parseIntegerLiteral)
   p.registerPrefix(BANG, p.parsePrefixExpression)
+  p.registerPrefix(FALSE, p.parseBoolean)
+  p.registerPrefix(IDENT, p.parseIdentifier)
+  p.registerPrefix(IF, p.parseIfExpression)
+  p.registerPrefix(INT, p.parseIntegerLiteral)
+  p.registerPrefix(LPAREN, p.parseGroupedExpression)
   p.registerPrefix(MINUS, p.parsePrefixExpression)
   p.registerPrefix(TRUE, p.parseBoolean)
-  p.registerPrefix(FALSE, p.parseBoolean)
-  p.registerPrefix(LPAREN, p.parseGroupedExpression)
 
   p.infix = make(map[TokenKind]infixParseFn)
   p.registerInfix(ASTERISK, p.parseInfixExpression)
@@ -293,4 +294,58 @@ func (p *Parser) parseGroupedExpression() Expression {
   }
 
   return expression
+}
+
+func (p *Parser) parseIfExpression() Expression {
+  expression := *&IfExpression{Token: p.curr}
+
+  if !p.expectPeek(LPAREN) {
+    return nil
+  }
+
+  p.advance()
+
+  expression.Condition = p.parseExpression(LOWEST)
+
+  if !p.expectPeek(RPAREN) {
+    return nil
+  }
+
+  if !p.expectPeek(LBRACE) {
+    return nil
+  }
+
+  expression.Consequence = p.parseBlockStatement()
+
+  if p.peek.Kind == ELSE {
+    p.advance()
+
+    if !p.expectPeek(LBRACE) {
+      return nil
+    }
+
+    expression.Alternative = p.parseBlockStatement()
+  }
+
+  return &expression
+}
+
+func (p *Parser) parseBlockStatement() *BlockStatement {
+  block := &BlockStatement{Token: p.curr}
+
+  block.Statements = []Statement{}
+
+  p.advance()
+
+  for p.curr.Kind != RBRACE && p.curr.Kind != EOF {
+    statement := p.parseStatement()
+
+    if statement != nil {
+      block.Statements = append(block.Statements, statement)
+    }
+
+    p.advance()
+  }
+
+  return block
 }
