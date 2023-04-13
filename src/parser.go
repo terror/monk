@@ -47,6 +47,7 @@ func NewParser(lexer *Lexer) *Parser {
   p.prefix = make(map[TokenKind]prefixParseFn)
   p.registerPrefix(BANG, p.parsePrefixExpression)
   p.registerPrefix(FALSE, p.parseBoolean)
+  p.registerPrefix(FUNCTION, p.parseFunctionLiteral)
   p.registerPrefix(IDENT, p.parseIdentifier)
   p.registerPrefix(IF, p.parseIfExpression)
   p.registerPrefix(INT, p.parseIntegerLiteral)
@@ -255,6 +256,55 @@ func (p *Parser) parseIntegerLiteral() Expression {
   literal.Value = value
 
   return literal
+}
+
+func (p *Parser) parseFunctionLiteral() Expression {
+  literal := &FunctionLiteral{Token: p.curr}
+
+  if !p.expectPeek(LPAREN) {
+    return nil
+  }
+
+  literal.Parameters = p.parseFunctionParameters()
+
+  if !p.expectPeek(LBRACE) {
+    return nil
+  }
+
+  literal.Body = p.parseBlockStatement()
+
+  return literal
+}
+
+func (p *Parser) parseFunctionParameters() []*Identifier {
+  identifers := []*Identifier{}
+
+  if p.peek.Kind == RPAREN {
+    p.advance()
+    return identifers
+  }
+
+  p.advance()
+
+  identifers = append(
+    identifers,
+    &Identifier{Token: p.curr, Value: p.curr.Literal},
+  )
+
+  for p.peek.Kind == COMMA {
+    p.advance()
+    p.advance()
+    identifers = append(
+      identifers,
+      &Identifier{Token: p.curr, Value: p.curr.Literal},
+    )
+  }
+
+  if !p.expectPeek(RPAREN) {
+    return nil
+  }
+
+  return identifers
 }
 
 func (p *Parser) parsePrefixExpression() Expression {
