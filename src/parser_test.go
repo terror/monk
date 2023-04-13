@@ -545,22 +545,28 @@ func TestIfExpression(t *testing.T) {
   program := setup(t, `if (x < y) { x } else { y }`)
 
   if len(program.Statements) != 1 {
-    t.Fatalf("program.Body does not contain %d statements. got=%d\n",
-      1, len(program.Statements))
+    t.Fatalf(
+      "program.Body does not contain %d statements. got=%d\n",
+      1, len(program.Statements),
+    )
   }
 
   stmt, ok := program.Statements[0].(*ExpressionStatement)
 
   if !ok {
-    t.Fatalf("program.Statements[0] is not an *ExpressionStatement. got=%T",
-      program.Statements[0])
+    t.Fatalf(
+      "program.Statements[0] is not an *ExpressionStatement. got=%T",
+      program.Statements[0],
+    )
   }
 
   exp, ok := stmt.Expression.(*IfExpression)
 
   if !ok {
-    t.Fatalf("stmt.Expression is not an *IfExpression. got=%T",
-      stmt.Expression)
+    t.Fatalf(
+      "stmt.Expression is not an *IfExpression. got=%T",
+      stmt.Expression,
+    )
   }
 
   if !testInfixExpression(t, exp.Condition, "x", "<", "y") {
@@ -568,15 +574,19 @@ func TestIfExpression(t *testing.T) {
   }
 
   if len(exp.Consequence.Statements) != 1 {
-    t.Errorf("consequence is not 1 statements. got=%d\n",
-      len(exp.Consequence.Statements))
+    t.Errorf(
+      "consequence is not 1 statements. got=%d\n",
+      len(exp.Consequence.Statements),
+    )
   }
 
   consequence, ok := exp.Consequence.Statements[0].(*ExpressionStatement)
 
   if !ok {
-    t.Fatalf("Statements[0] is not an *ExpressionStatement. got=%T",
-      exp.Consequence.Statements[0])
+    t.Fatalf(
+      "Statements[0] is not an *ExpressionStatement. got=%T",
+      exp.Consequence.Statements[0],
+    )
   }
 
   if !testIdentifier(t, consequence.Expression, "x") {
@@ -594,42 +604,55 @@ func TestFunctionLiteral(t *testing.T) {
   program := setup(t, `fn(x, y) { x + y; }`)
 
   if len(program.Statements) != 1 {
-    t.Fatalf("program.Body does not contain %d statements. got=%d\n",
-      1, len(program.Statements))
+    t.Fatalf(
+      "program.Body does not contain %d statements. got=%d\n",
+      1,
+      len(program.Statements),
+    )
   }
 
   stmt, ok := program.Statements[0].(*ExpressionStatement)
 
   if !ok {
-    t.Fatalf("program.Statements[0] is not an *ExpressionStatement. got=%T",
-      program.Statements[0])
+    t.Fatalf(
+      "program.Statements[0] is not an *ExpressionStatement. got=%T",
+      program.Statements[0],
+    )
   }
 
   function, ok := stmt.Expression.(*FunctionLiteral)
 
   if !ok {
-    t.Fatalf("stmt.Expression is not a *FunctionLiteral. got=%T",
-      stmt.Expression)
+    t.Fatalf(
+      "stmt.Expression is not a *FunctionLiteral. got=%T",
+      stmt.Expression,
+    )
   }
 
   if len(function.Parameters) != 2 {
-    t.Fatalf("function literal parameters wrong. want 2, got=%d\n",
-      len(function.Parameters))
+    t.Fatalf(
+      "function literal parameters wrong. want 2, got=%d\n",
+      len(function.Parameters),
+    )
   }
 
   testLiteralExpression(t, function.Parameters[0], "x")
   testLiteralExpression(t, function.Parameters[1], "y")
 
   if len(function.Body.Statements) != 1 {
-    t.Fatalf("function.Body.Statements has not 1 statements. got=%d\n",
-      len(function.Body.Statements))
+    t.Fatalf(
+      "function.Body.Statements has not 1 statements. got=%d\n",
+      len(function.Body.Statements),
+    )
   }
 
   bodyStmt, ok := function.Body.Statements[0].(*ExpressionStatement)
 
   if !ok {
-    t.Fatalf("function body stmt is not an *ExpressionStatement. got=%T",
-      function.Body.Statements[0])
+    t.Fatalf(
+      "function body stmt is not an *ExpressionStatement. got=%T",
+      function.Body.Statements[0],
+    )
   }
 
   testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
@@ -653,8 +676,11 @@ func TestFunctionParameter(t *testing.T) {
     function := stmt.Expression.(*FunctionLiteral)
 
     if len(function.Parameters) != len(tt.expectedParams) {
-      t.Errorf("Length parameters wrong. want %d, got=%d\n",
-        len(tt.expectedParams), len(function.Parameters))
+      t.Errorf(
+        "Length parameters wrong. want %d, got=%d\n",
+        len(tt.expectedParams),
+        len(function.Parameters),
+      )
     }
 
     for i, ident := range tt.expectedParams {
@@ -667,22 +693,29 @@ func TestCallExpression(t *testing.T) {
   program := setup(t, "add(1, 2 * 3, 4 + 5);")
 
   if len(program.Statements) != 1 {
-    t.Fatalf("program.Statements does not contain %d statements. got=%d\n",
-      1, len(program.Statements))
+    t.Fatalf(
+      "program.Statements does not contain %d statements. got=%d\n",
+      1,
+      len(program.Statements),
+    )
   }
 
   stmt, ok := program.Statements[0].(*ExpressionStatement)
 
   if !ok {
-    t.Fatalf("stmt is not an *ExpressionStatement. got=%T",
-      program.Statements[0])
+    t.Fatalf(
+      "stmt is not an *ExpressionStatement. got=%T",
+      program.Statements[0],
+    )
   }
 
   exp, ok := stmt.Expression.(*CallExpression)
 
   if !ok {
-    t.Fatalf("stmt.Expression is not a *CallExpression. got=%T",
-      stmt.Expression)
+    t.Fatalf(
+      "stmt.Expression is not a *CallExpression. got=%T",
+      stmt.Expression,
+    )
   }
 
   if !testIdentifier(t, exp.Function, "add") {
@@ -690,7 +723,10 @@ func TestCallExpression(t *testing.T) {
   }
 
   if len(exp.Arguments) != 3 {
-    t.Fatalf("wrong length of arguments. got=%d", len(exp.Arguments))
+    t.Fatalf(
+      "wrong length of arguments. got=%d",
+      len(exp.Arguments),
+    )
   }
 
   testLiteralExpression(t, exp.Arguments[0], 1)
