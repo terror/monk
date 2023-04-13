@@ -408,16 +408,13 @@ func (p *Parser) parseBlockStatement() *BlockStatement {
 
 func (p *Parser) parseCallExpression(function Expression) Expression {
   exp := &CallExpression{Token: p.curr, Function: function}
-  exp.Arguments = p.parseCallArguments()
-  return exp
-}
 
-func (p *Parser) parseCallArguments() []Expression {
   args := []Expression{}
 
   if p.peek.Kind == RPAREN {
     p.advance()
-    return args
+    exp.Arguments = args
+    return exp
   }
 
   p.advance()
@@ -434,5 +431,7 @@ func (p *Parser) parseCallArguments() []Expression {
     return nil
   }
 
-  return args
+  exp.Arguments = args
+
+  return exp
 }
