@@ -108,12 +108,6 @@ func (p *Parser) advance() {
   p.peek = p.lexer.Advance()
 }
 
-func (p *Parser) advanceUntil(kind TokenKind) {
-  for p.curr.Kind != kind {
-    p.advance()
-  }
-}
-
 func (p *Parser) expectPeek(kind TokenKind) bool {
   if p.peek.Kind == kind {
     p.advance()
@@ -186,7 +180,9 @@ func (p *Parser) parseLetStatement() *LetStatement {
 
   statement.Value = p.parseExpression(LOWEST)
 
-  p.advanceUntil(SEMICOLON)
+  if p.peek.Kind == SEMICOLON {
+    p.advance()
+  }
 
   return statement
 }
@@ -198,7 +194,9 @@ func (p *Parser) parseReturnStatement() *ReturnStatement {
 
   statement.ReturnValue = p.parseExpression(LOWEST)
 
-  p.advanceUntil(SEMICOLON)
+  if p.peek.Kind == SEMICOLON {
+    p.advance()
+  }
 
   return statement
 }

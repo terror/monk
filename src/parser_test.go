@@ -635,7 +635,7 @@ func TestFunctionLiteral(t *testing.T) {
   testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
 }
 
-func TestFunctionParameterParsing(t *testing.T) {
+func TestFunctionParameter(t *testing.T) {
   tests := []struct {
     input          string
     expectedParams []string
@@ -663,7 +663,7 @@ func TestFunctionParameterParsing(t *testing.T) {
   }
 }
 
-func TestCallExpressionParsing(t *testing.T) {
+func TestCallExpression(t *testing.T) {
   program := setup(t, "add(1, 2 * 3, 4 + 5);")
 
   if len(program.Statements) != 1 {
