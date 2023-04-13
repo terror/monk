@@ -353,7 +353,7 @@ func (p *Parser) parseGroupedExpression() Expression {
 }
 
 func (p *Parser) parseIfExpression() Expression {
-  expression := *&IfExpression{Token: p.curr}
+  expression := &IfExpression{Token: p.curr}
 
   if !p.expectPeek(LPAREN) {
     return nil
@@ -383,7 +383,7 @@ func (p *Parser) parseIfExpression() Expression {
     expression.Alternative = p.parseBlockStatement()
   }
 
-  return &expression
+  return expression
 }
 
 func (p *Parser) parseBlockStatement() *BlockStatement {
