@@ -171,10 +171,11 @@ func TestLetStatements(t *testing.T) {
 
   tests := []struct {
     expectedIdentifier string
+    expectedExpression interface{}
   }{
-    {"x"},
-    {"y"},
-    {"foobar"},
+    {"x", 5},
+    {"y", 10},
+    {"foobar", 9000},
   }
 
   for i, tt := range tests {
@@ -189,6 +190,10 @@ func TestLetStatements(t *testing.T) {
 
     letStatement, ok := statement.(*LetStatement)
 
+    if !ok {
+      t.Errorf("statement not *LetStatement, got=%T", statement)
+    }
+
     if letStatement.Name.Value != tt.expectedIdentifier {
       t.Errorf(
         "letStatement.Name.Value not '%s'. got=%s",
@@ -199,14 +204,22 @@ func TestLetStatements(t *testing.T) {
 
     if letStatement.Name.TokenLiteral() != tt.expectedIdentifier {
       t.Errorf(
-        "statement.Name not %s, got=%s",
+        "letStatement.Name not %s, got=%s",
         tt.expectedIdentifier,
         letStatement.Name,
       )
     }
 
-    if !ok {
-      t.Errorf("statement not *LetStatement, got=%T", statement)
+    if !testLiteralExpression(
+      t,
+      letStatement.Value,
+      tt.expectedExpression,
+    ) {
+      t.Errorf(
+        "letStatement.Value not %T, got=%T",
+        letStatement.Value,
+        tt.expectedExpression,
+      )
     }
   }
 }

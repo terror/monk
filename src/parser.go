@@ -179,6 +179,10 @@ func (p *Parser) parseLetStatement() *LetStatement {
     return nil
   }
 
+  p.advance()
+
+  statement.Value = p.parseExpression(LOWEST)
+
   p.advanceUntil(SEMICOLON)
 
   return statement
@@ -188,6 +192,8 @@ func (p *Parser) parseReturnStatement() *ReturnStatement {
   statement := &ReturnStatement{Token: p.curr}
 
   p.advance()
+
+  statement.ReturnValue = p.parseExpression(LOWEST)
 
   p.advanceUntil(SEMICOLON)
 
