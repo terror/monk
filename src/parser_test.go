@@ -515,6 +515,19 @@ func TestOperatorPrecdence(t *testing.T) {
       "!(true == true)",
       "(!(true == true))",
     },
+    {
+      "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+      "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+    },
+    {
+
+      "a + add(b * c) + d",
+      "((a + add((b * c))) + d)",
+    },
+    {
+      "add(a + b + c * d / f + g)",
+      "add((((a + b) + ((c * d) / f)) + g))",
+    },
   }
 
   for _, tt := range tests {
@@ -648,4 +661,39 @@ func TestFunctionParameterParsing(t *testing.T) {
       testLiteralExpression(t, function.Parameters[i], ident)
     }
   }
+}
+
+func TestCallExpressionParsing(t *testing.T) {
+  program := setup(t, "add(1, 2 * 3, 4 + 5);")
+
+  if len(program.Statements) != 1 {
+    t.Fatalf("program.Statements does not contain %d statements. got=%d\n",
+      1, len(program.Statements))
+  }
+
+  stmt, ok := program.Statements[0].(*ExpressionStatement)
+
+  if !ok {
+    t.Fatalf("stmt is not an *ExpressionStatement. got=%T",
+      program.Statements[0])
+  }
+
+  exp, ok := stmt.Expression.(*CallExpression)
+
+  if !ok {
+    t.Fatalf("stmt.Expression is not a *CallExpression. got=%T",
+      stmt.Expression)
+  }
+
+  if !testIdentifier(t, exp.Function, "add") {
+    return
+  }
+
+  if len(exp.Arguments) != 3 {
+    t.Fatalf("wrong length of arguments. got=%d", len(exp.Arguments))
+  }
+
+  testLiteralExpression(t, exp.Arguments[0], 1)
+  testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
+  testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
 }

@@ -22,14 +22,15 @@ const (
 )
 
 var precedences = map[TokenKind]int{
-  EQ:       EQUALS,
-  NOT_EQ:   EQUALS,
-  LT:       LESSGREATER,
-  GT:       LESSGREATER,
-  PLUS:     SUM,
-  MINUS:    SUM,
-  SLASH:    PRODUCT,
   ASTERISK: PRODUCT,
+  EQ:       EQUALS,
+  GT:       LESSGREATER,
+  LPAREN:   CALL,
+  LT:       LESSGREATER,
+  MINUS:    SUM,
+  NOT_EQ:   EQUALS,
+  PLUS:     SUM,
+  SLASH:    PRODUCT,
 }
 
 type Parser struct {
@@ -59,6 +60,7 @@ func NewParser(lexer *Lexer) *Parser {
   p.registerInfix(ASTERISK, p.parseInfixExpression)
   p.registerInfix(EQ, p.parseInfixExpression)
   p.registerInfix(GT, p.parseInfixExpression)
+  p.registerInfix(LPAREN, p.parseCallExpression)
   p.registerInfix(LT, p.parseInfixExpression)
   p.registerInfix(MINUS, p.parseInfixExpression)
   p.registerInfix(NOT_EQ, p.parseInfixExpression)
@@ -404,4 +406,35 @@ func (p *Parser) parseBlockStatement() *BlockStatement {
   }
 
   return block
+}
+
+func (p *Parser) parseCallExpression(function Expression) Expression {
+  exp := &CallExpression{Token: p.curr, Function: function}
+  exp.Arguments = p.parseCallArguments()
+  return exp
+}
+
+func (p *Parser) parseCallArguments() []Expression {
+  args := []Expression{}
+
+  if p.peek.Kind == RPAREN {
+    p.advance()
+    return args
+  }
+
+  p.advance()
+
+  args = append(args, p.parseExpression(LOWEST))
+
+  for p.peek.Kind == COMMA {
+    p.advance()
+    p.advance()
+    args = append(args, p.parseExpression(LOWEST))
+  }
+
+  if !p.expectPeek(RPAREN) {
+    return nil
+  }
+
+  return args
 }
