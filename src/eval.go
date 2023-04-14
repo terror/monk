@@ -2,6 +2,8 @@ package main
 
 func Eval(node Node) Object {
   switch node := node.(type) {
+  case *BooleanExpression:
+    return &Boolean{Value: node.Value}
   case *ExpressionStatement:
     return Eval(node.Expression)
   case *IntegerLiteral:

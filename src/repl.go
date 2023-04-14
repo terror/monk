@@ -8,7 +8,7 @@ import (
 
 const PROMPT = ">> "
 
-func repl(in io.Reader, out io.Writer) {
+func Repl(in io.Reader, out io.Writer) {
   scanner := bufio.NewScanner(in)
 
   for {
