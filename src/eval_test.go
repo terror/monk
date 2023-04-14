@@ -4,6 +4,35 @@ import (
   "testing"
 )
 
+func TestEvalIntegerExpression(t *testing.T) {
+  tests := []struct {
+    input    string
+    expected int64
+  }{
+    {"5", 5},
+    {"10", 10},
+    {"9000", 9000},
+  }
+
+  for _, tt := range tests {
+    testIntegerObject(t, testEval(tt.input), tt.expected)
+  }
+}
+
+func TestEvalBooleanExpression(t *testing.T) {
+  tests := []struct {
+    input    string
+    expected bool
+  }{
+    {"true", true},
+    {"false", false},
+  }
+
+  for _, tt := range tests {
+    testBooleanObject(t, testEval(tt.input), tt.expected)
+  }
+}
+
 func testEval(input string) Object {
   return Eval(NewParser(NewLexer(input)).Parse())
 }
@@ -46,33 +75,4 @@ func testBooleanObject(t *testing.T, obj Object, expected bool) bool {
   }
 
   return true
-}
-
-func TestEvalIntegerExpression(t *testing.T) {
-  tests := []struct {
-    input    string
-    expected int64
-  }{
-    {"5", 5},
-    {"10", 10},
-    {"9000", 9000},
-  }
-
-  for _, tt := range tests {
-    testIntegerObject(t, testEval(tt.input), tt.expected)
-  }
-}
-
-func TestEvalBooleanExpression(t *testing.T) {
-  tests := []struct {
-    input    string
-    expected bool
-  }{
-    {"true", true},
-    {"false", false},
-  }
-
-  for _, tt := range tests {
-    testBooleanObject(t, testEval(tt.input), tt.expected)
-  }
 }
