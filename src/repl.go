@@ -30,8 +30,14 @@ func repl(in io.Reader, out io.Writer) {
       for _, message := range parser.Errors() {
         fmt.Println(message)
       }
-    } else {
-      fmt.Println(program.String())
+      continue
+    }
+
+    evaluated := Eval(program)
+
+    if evaluated != nil {
+      io.WriteString(out, evaluated.Inspect())
+      io.WriteString(out, "\n")
     }
   }
 }

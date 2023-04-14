@@ -337,7 +337,7 @@ func (p *Parser) parseInfixExpression(left Expression) Expression {
 }
 
 func (p *Parser) parseBoolean() Expression {
-  return &Boolean{Token: p.curr, Value: p.curr.Kind == TRUE}
+  return &BooleanExpression{Token: p.curr, Value: p.curr.Kind == TRUE}
 }
 
 func (p *Parser) parseGroupedExpression() Expression {

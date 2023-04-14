@@ -53,11 +53,15 @@ func testIntegerLiteral(t *testing.T, expression Expression, value int64) bool {
   return true
 }
 
-func testBooleanLiteral(t *testing.T, expression Expression, value bool) bool {
-  boolean, ok := expression.(*Boolean)
+func testBooleanExpressionLiteral(
+  t *testing.T,
+  expression Expression,
+  value bool,
+) bool {
+  boolean, ok := expression.(*BooleanExpression)
 
   if !ok {
-    t.Errorf("Expression is not a *Boolean, got=%T", expression)
+    t.Errorf("Expression is not a *BooleanExpression, got=%T", expression)
   }
 
   if boolean.Value != value {
@@ -115,7 +119,7 @@ func testLiteralExpression(
   case string:
     return testIdentifier(t, expression, v)
   case bool:
-    return testBooleanLiteral(t, expression, v)
+    return testBooleanExpressionLiteral(t, expression, v)
   }
 
   t.Errorf("Type of expression not handled, got=%T", expression)
