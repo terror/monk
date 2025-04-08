@@ -4,12 +4,14 @@ import (
   "bufio"
   "fmt"
   "io"
+  "strings"
 )
 
 const PROMPT = ">> "
 
 func Repl(in io.Reader, out io.Writer) {
   scanner := bufio.NewScanner(in)
+  env := NewEnvironment()
 
   for {
     fmt.Print(PROMPT)
@@ -22,6 +24,17 @@ func Repl(in io.Reader, out io.Writer) {
 
     line := scanner.Text()
 
+    // Allow exiting the REPL with 'exit' or 'quit'
+    if line == "exit" || line == "quit" {
+      fmt.Println("Goodbye!")
+      return
+    }
+
+    // Ignore empty lines
+    if strings.TrimSpace(line) == "" {
+      continue
+    }
+
     parser := NewParser(NewLexer(line))
 
     program := parser.Parse()
@@ -33,7 +46,7 @@ func Repl(in io.Reader, out io.Writer) {
       continue
     }
 
-    evaluated := Eval(program)
+    evaluated := Eval(program, env)
 
     if evaluated != nil {
       io.WriteString(out, evaluated.Inspect())
